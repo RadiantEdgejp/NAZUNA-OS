@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "nazuna://contracts/v1.0/approval_decision",
+  "title": "ApprovalDecision v1.0 (Gateway -> Core)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "decision_id", "approval_id", "task_id", "decided_at", "decided_by", "decision", "ui_ref"],
+  "properties": {
+    "schema": { "const": "nazuna.approval_decision.v1" },
+    "decision_id": { "type": "string", "format": "uuid" },
+
+    "approval_id": { "type": "string", "format": "uuid" },
+    "task_id": { "type": "string", "format": "uuid" },
+
+    "decided_at": { "type": "string", "format": "date-time" },
+
+    "decided_by": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["discord_user_id"],
+      "properties": {
+        "discord_user_id": { "type": "string" },
+        "display_name": { "type": "string" }
+      }
+    },
+
+    "decision": { "type": "string", "enum": ["approved", "rejected", "conditions"] },
+    "conditions": { "type": "object", "additionalProperties": true },
+    "comment": { "type": "string" },
+
+    "ui_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["guild_id", "channel_id", "message_id", "interaction_id"],
+      "properties": {
+        "guild_id": { "type": "string" },
+        "channel_id": { "type": "string" },
+        "message_id": { "type": "string" },
+        "interaction_id": { "type": "string" }
+      }
+    },
+
+    "idempotency_key": { "type": "string" }
+  }
+}

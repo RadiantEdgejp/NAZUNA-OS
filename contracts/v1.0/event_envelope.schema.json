@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "nazuna://contracts/v1.0/event_envelope",
+  "title": "EventEnvelope v1.0 (Gateway -> Core)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "event_id", "occurred_at", "source", "type", "actor", "context", "payload"],
+  "properties": {
+    "schema": { "const": "nazuna.event_envelope.v1" },
+    "event_id": { "type": "string", "format": "uuid" },
+    "occurred_at": { "type": "string", "format": "date-time" },
+
+    "source": { "type": "string", "enum": ["discord", "scheduler", "system", "webhook"] },
+
+    "type": {
+      "type": "string",
+      "enum": [
+        "discord.message.created",
+        "discord.interaction.button",
+        "discord.interaction.select",
+        "discord.reaction.added",
+        "scheduler.tick"
+      ]
+    },
+
+    "trace": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["correlation_id"],
+      "properties": {
+        "correlation_id": { "type": "string" },
+        "causation_id": { "type": "string" },
+        "idempotency_key": { "type": "string" }
+      }
+    },
+
+    "actor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "id"],
+      "properties": {
+        "kind": { "type": "string", "enum": ["user", "bot", "system"] },
+        "id": { "type": "string" },
+        "display_name": { "type": "string" }
+      }
+    },
+
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["guild_id", "channel_id"],
+      "properties": {
+        "guild_id": { "type": "string" },
+        "channel_id": { "type": "string" },
+        "thread_id": { "type": "string" },
+        "message_id": { "type": "string" },
+        "interaction_id": { "type": "string" },
+        "command_room_channel_id": { "type": "string" }
+      }
+    },
+
+    "payload": { "type": "object", "additionalProperties": true }
+  }
+}

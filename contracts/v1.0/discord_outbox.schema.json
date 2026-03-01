@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "nazuna://contracts/v1.0/discord_outbox",
+  "title": "DiscordOutbox v1.0 (Core -> Gateway)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "outbox_id", "kind", "target", "render", "meta"],
+  "properties": {
+    "schema": { "const": "nazuna.discord.outbox.v1" },
+    "outbox_id": { "type": "string", "format": "uuid" },
+
+    "kind": { "type": "string", "enum": ["control_card", "approval_card", "delivery_bundle"] },
+
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["guild_id", "channel_id", "mode"],
+      "properties": {
+        "guild_id": { "type": "string" },
+        "channel_id": { "type": "string" },
+        "thread_id": { "type": "string" },
+        "mode": { "type": "string", "enum": ["send", "edit", "reply"] },
+        "discord_message_id": { "type": "string" },
+        "reply_to_message_id": { "type": "string" },
+        "message_key": { "type": "string" }
+      }
+    },
+
+    "render": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["format", "content"],
+      "properties": {
+        "format": { "type": "string", "enum": ["md"] },
+        "content": { "type": "string" },
+        "components": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["type", "items"],
+            "properties": {
+              "type": { "type": "string", "enum": ["action_row"] },
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["type", "custom_id", "label", "style"],
+                  "properties": {
+                    "type": { "type": "string", "enum": ["button"] },
+                    "custom_id": { "type": "string" },
+                    "label": { "type": "string" },
+                    "style": { "type": "string", "enum": ["primary", "secondary", "success", "danger"] },
+                    "disabled": { "type": "boolean" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["task_id", "trace"],
+      "properties": {
+        "task_id": { "type": "string", "format": "uuid" },
+        "project_id": { "type": "string", "format": "uuid" },
+
+        "approval": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["approval_id", "type"],
+          "properties": {
+            "approval_id": { "type": "string", "format": "uuid" },
+            "type": { "type": "string", "enum": ["A", "C"] }
+          }
+        },
+
+        "trace": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["correlation_id"],
+          "properties": {
+            "correlation_id": { "type": "string" },
+            "causation_id": { "type": "string" },
+            "idempotency_key": { "type": "string" }
+          }
+        }
+      }
+    }
+  },
+
+  "allOf": [
+    {
+      "if": { "properties": { "kind": { "const": "approval_card" } } },
+      "then": {
+        "properties": {
+          "meta": { "required": ["approval"] },
+          "render": { "required": ["components"] }
+        }
+      }
+    }
+  ]
+}
